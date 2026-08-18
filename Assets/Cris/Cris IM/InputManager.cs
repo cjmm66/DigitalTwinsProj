@@ -32,22 +32,47 @@ public class InputManager : MonoBehaviour
 
     private void SelectForklift()
     {
-        Vector2 mousePosition =
-            mainCamera.ScreenToWorldPoint(
-                Mouse.current.position.ReadValue()
-            );
+        //Vector2 mousePosition =
+        //    mainCamera.ScreenToWorldPoint(
+        //        Mouse.current.position.ReadValue()
+        //    );
 
+
+        //Collider2D hit =
+        //    Physics2D.OverlapPoint(mousePosition);
+
+
+
+        //if (hit != null)
+        //{
+        //    ForkLiftSelection forklift =
+        //        hit.GetComponent<ForkLiftSelection>();
+
+
+        //    if (forklift != null)
+        //    {
+        //        forklift.Select();
+        //    }
+        //}
+
+        Vector2 mousePosition =
+        mainCamera.ScreenToWorldPoint(
+            Mouse.current.position.ReadValue()
+        );
+
+        int forkliftLayer =
+            LayerMask.GetMask("Default");
 
         Collider2D hit =
-            Physics2D.OverlapPoint(mousePosition);
-
-
+            Physics2D.OverlapPoint(
+                mousePosition,
+                forkliftLayer
+            );
 
         if (hit != null)
         {
             ForkLiftSelection forklift =
                 hit.GetComponent<ForkLiftSelection>();
-
 
             if (forklift != null)
             {

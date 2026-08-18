@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class ForkliftMovement : MonoBehaviour
 {
+    
+
+    [SerializeField] private Transform containerPickupPoint;
     [SerializeField] private float moveSpeed = 4f;
     [SerializeField] private float rotationSpeed = 8f;
 
@@ -12,8 +15,10 @@ public class ForkliftMovement : MonoBehaviour
     private bool isMoving;
     private bool movementDisabled;
     private bool stoppedByAvoidance;
-
     private float movementStartTime;
+
+    private bool isEmpty = true;
+    private ContainerStorage carriedContainer;
 
     private Rigidbody2D rb;
     private Collider2D forkliftCollider;
@@ -286,5 +291,102 @@ public class ForkliftMovement : MonoBehaviour
     public bool IsStoppedByAvoidance()
     {
         return stoppedByAvoidance;
+    }
+
+    public bool IsEmpty()
+    {
+        return isEmpty;
+    }
+
+    public bool TryPickupContainer(ContainerStorage container)
+    {
+        // Forklift is already carrying something.
+        if (!isEmpty)
+        {
+            Debug.Log(
+                gameObject.name +
+                " cannot pick up " +
+                container.gameObject.name +
+                " because it is already carrying a container."
+            );
+
+            return false;
+        }
+
+        // Container isn't ready.
+        if (!container.IsReadyForShipment())
+        {
+            Debug.Log(
+                container.gameObject.name +
+                " is not ready for shipment."
+            );
+
+            return false;
+        }
+
+        // Start the shipment state.
+        if (!container.TryStartShipment())
+        {
+            return false;
+        }
+
+        // Store reference to the container.
+        carriedContainer = container;
+
+        isEmpty = false;
+
+        // Attach container to forklift.
+        container.transform.SetParent(transform);
+
+        // Move container to pickup position.
+        if (containerPickupPoint != null)
+        {
+            container.transform.position =
+                containerPickupPoint.position;
+        }
+
+        Debug.Log(
+            gameObject.name +
+            " picked up " +
+            container.gameObject.name
+        );
+
+        return true;
+    }
+
+    public void CompleteContainerShipment()
+    {
+        if (isEmpty || carriedContainer == null)
+        {
+            Debug.Log(
+                gameObject.name +
+                " has no container to ship."
+            );
+
+            return;
+        }
+
+        Debug.Log(
+            gameObject.name +
+            " delivered " +
+            carriedContainer.gameObject.name +
+            " to the shipment zone."
+        );
+
+        // Tell the container it has been shipped.
+        carriedContainer.CompleteShipment();
+
+        // Remove the container from the forklift.
+        Destroy(carriedContainer.gameObject);
+
+        // Forklift is empty again.
+        carriedContainer = null;
+        isEmpty = true;
+
+        Debug.Log(
+            gameObject.name +
+            " is now empty and ready for another container."
+        );
+
     }
 }

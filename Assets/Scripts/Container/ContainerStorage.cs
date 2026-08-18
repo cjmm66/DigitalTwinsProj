@@ -38,6 +38,8 @@ public class ContainerStorage : MonoBehaviour
 
         remainingStorageTime = requiredStorageTime;
 
+        StartStorageTimer();
+
         timeSinceReady = 0f;
 
         currentPenalty = PenaltyLevel.None;
